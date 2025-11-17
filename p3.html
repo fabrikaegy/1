@@ -141,7 +141,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
 <div class="container">
   <a class="back-link" href="shop.html">← Back to Shop</a>
 
-  <div class="main-image-wrap"><img id="main-img" src="images/fbr 1.jpg" alt="Black Crewneck"></div>
+  <div class="main-image-wrap"><img id="main-img" src="images/fbr1.jpg" alt="Black Crewneck"></div>
 
   <div class="title">FBR Full Suit</div>
   <div class="price">LE 1599.00</div>
@@ -167,9 +167,9 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
   </div>
 
   <div class="gallery" id="gallery">
-    <img src="images/fbr 1.jpg" data-src="images/fbr 1.jpg" class="selected">
-    <img src="images/fbr 2.jpg" data-src="images/fbr 2.jpg" class="">
-    <img src="images/fbr 3.jpg" data-src="images/fbr 3.jpg" class="">
+    <img src="images/fbr1.jpg" data-src="images/fbr1.jpg" class="selected">
+    <img src="images/fbr2.jpg" data-src="images/fbr2.jpg" class="">
+    <img src="images/fbr3.jpg" data-src="images/fbr3.jpg" class="">
   </div>
 
   <div class="label-small" style="margin-top:8px">Colors</div>
@@ -184,7 +184,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
   <div class="label-small" style="margin-top:12px">You may also like</div>
   <div class="related-grid">
     <a class="related-card" href="p4.html">
-      <div class="related-thumb"><img src="images/fbr 1.jpg" style="width: 100%;
+      <div class="related-thumb"><img src="images/jk1.jpg" style="width: 100%;
 height: 300px;   /* Bigger image — you can change this */
 object-fit: cover;
 border-radius: 6px;
@@ -193,7 +193,7 @@ border-radius: 6px;
       <div class="small-muted">LE 849.00</div>
     </a>
     <a class="related-card" href="p5.html">
-      <div class="related-thumb"><img src="images/fbr 2.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:6px"></div>
+      <div class="related-thumb"><img src="images/pant2.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:6px"></div>
       <div style="font-weight:700">FBR Pants</div>
       <div class="small-muted">LE 849.00</div>
     </a>
@@ -740,6 +740,70 @@ document.addEventListener('DOMContentLoaded', () => {
 
 })();
 </script>
+<!-- IMPORTED_ZARA_SWIPE: main image swipe script -->
+<script>
+(function () {
+    const mainImg = document.getElementById("main-img");
+    if (!mainImg) return;
+    const galleryThumbs = document.querySelectorAll(".gallery img[data-src]");
+    let images = Array.from(galleryThumbs).map(img => img.getAttribute("data-src"));
+    if (images.length === 0) images = [mainImg.src];
+    let index = images.indexOf(mainImg.src);
+    if(index === -1) index = 0;
+    let startX = 0, endX = 0;
+
+    function showImage(i) {
+        index = (i + images.length) % images.length;
+        mainImg.src = images[index];
+
+        document.querySelectorAll('.gallery img').forEach((g, idx) => {
+            g.classList.toggle('selected', idx === index);
+        });
+    }
+
+    mainImg.addEventListener("touchstart", e => { 
+        startX = e.changedTouches[0].clientX; 
+    });
+
+    mainImg.addEventListener("touchend", e => {
+        endX = e.changedTouches[0].clientX;
+        const diff = endX - startX;
+        if (Math.abs(diff) > 50) {
+            if (diff < 0) showImage(index + 1);
+            else showImage(index - 1);
+        }
+    });
+
+    // mouse swipe
+    let isDown = false, downX = 0;
+    mainImg.addEventListener('mousedown', e => {
+        isDown = true;
+        downX = e.clientX;
+    });
+
+    window.addEventListener('mouseup', e => {
+        if (!isDown) return;
+        isDown = false;
+        const diff = e.clientX - downX;
+        if (Math.abs(diff) > 50) {
+            if (diff < 0) showImage(index + 1);
+            else showImage(index - 1);
+        }
+    });
+
+    // gallery click
+    document.querySelectorAll('.gallery img').forEach((g, idx) => {
+        g.addEventListener('click', function() {
+            mainImg.src = this.dataset.src || this.src;
+            document.querySelectorAll('.gallery img').forEach(i=>i.classList.remove('selected'));
+            this.classList.add('selected');
+            index = idx;
+        });
+        g.classList.toggle('selected', idx === index);
+    });
+})();
+</script>
+<!-- end IMPORTED_ZARA_SWIPE -->
 
 </body>
 </html>
