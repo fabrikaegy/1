@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Baby Blue Crewneck — FABRIKA</title>
+
+<!-- Include Tailwind (used by the cart modal styles from your shop) -->
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#000;
+  --muted:#9ca3af;
+  --white:#ffffff;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
+.container{max-width:480px;margin:0 auto;padding:20px}
+.back-link{display:inline-block;color:var(--muted);margin-bottom:8px;text-decoration:none}
+.main-image-wrap{width:100%;height:160px;border-radius:12px;overflow:hidden;background:#050505;display:flex;align-items:center;justify-content:center}
+.main-image-wrap img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.title{font-size:28px;font-weight:800;margin-top:12px;letter-spacing:0.3px}
+.price{font-size:16px;color:var(--muted);margin-top:8px;font-weight:600}
+.label-small{font-size:13px;color:var(--muted);margin-top:12px}
+.size-row{display:flex;gap:10px;margin-top:10px}
+.size-button{min-width:48px;height:44px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;color:rgba(255,255,255,0.65);display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:700;transition:all .12s}
+.size-button.active{background:#0b0b0b;border:2px solid #ffffff;color:#ffffff;box-shadow:none}
+.controls{display:flex;gap:12px;align-items:center;margin-top:14px}
+.qty-box{display:flex;align-items:center;gap:12px}
+.qty-btn{width:48px;height:44px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px}
+.qty-display{min-width:36px;text-align:center}
+.add-row{display:flex;gap:12px;align-items:center;margin-top:14px}
+.add-to-cart{flex:1;padding:14px;border-radius:8px;border:1px solid #fff;background:transparent;color:#fff;font-weight:800;cursor:pointer}
+.gallery{display:flex;gap:8px;margin-top:14px;overflow-x:auto;padding-bottom:8px}
+.gallery img{width:110px;height:110px;object-fit:cover;border-radius:8px;cursor:pointer;border:1px solid transparent}
+.gallery img.selected{border-color:#fff}
+.color-row{display:flex;gap:8px;margin-top:10px;align-items:center}
+.color-swatch{width:24px;height:24px;border-radius:50%;border:1px solid rgba(255,255,255,0.06);cursor:pointer;display:inline-block;box-sizing:border-box}
+.color-swatch.active{outline:2px solid #fff;outline-offset:2px}
+.accordion{margin-top:18px;border-top:1px solid rgba(255,255,255,0.03);padding-top:12px}
+.accordion-btn{display:flex;justify-content:space-between;align-items:center;padding:12px 0;cursor:pointer;color:#e5e7eb;border-bottom:1px solid rgba(255,255,255,0.02)}
+.accordion-content{display:none;padding:12px 0;color:var(--muted);font-size:14px}
+.related-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.related-card{background:#0b0b0b;border-radius:8px;padding:10px;text-decoration:none;color:#fff;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.related-thumb{width:100%;height:80px;background:#111;border-radius:6px;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#9ca3af}
+.small-muted{color:var(--muted);font-size:13px}
+.hidden{display:none}
+@media (max-width:420px){
+  .gallery img{width:90px;height:90px}
+  .main-image-wrap{height:140px}
+  .title{font-size:24px}
+}
+</style>
+
+<!-- INSERTED STYLES: Zara-style main image, square recommendations, hide arrows, accordion open -->
+<style>
+/* Main carousel area: tall like Zara (75vh) and edge-to-edge on mobile */
+#image-carousel, .image-carousel, .main-image-wrap { height: 75vh !important; max-height:75vh !important; }
+#image-carousel, .image-carousel, .main-image-wrap { width: 100% !important; }
+
+/* Images fill the carousel area without distortion */
+#image-carousel img, #carousel-slides img, .main-image-wrap img, .product-main-img { width: 100% !important; height: 100% !important; object-fit: cover !important; display:block; }
+
+/* Hide arrow buttons (swipe-only) */
+#carousel-prev, #carousel-next, .carousel-prev, .carousel-next { display: none !important; }
+
+
+/* "You may also like" — make thumbs perfect squares 160x160 */
+.related-thumb, .related-thumb img, .you-may-like .thumb, .you-may-like img, .related-grid img, .related-card img {
+  width: 160px !important;
+  height: 160px !important;
+  aspect-ratio: 1 / 1 !important;
+  object-fit: cover !important;
+  display: inline-block !important;
+}
+
+/* Ensure small gallery thumbnails (under Add to Cart) are NOT affected */
+/* Assuming they use classes like thumb-small or gallery-thumb; keep high specificity for those to avoid changes */
+.thumb-small, .gallery-thumb-small { width: auto !important; height: auto !important; }
+
+/* Accordion: ensure transition works and .active opens */
+.accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.28s ease-out; }
+.accordion-content.active { max-height: 1200px; transition: max-height 0.35s ease-in; }
+
+/* Mobile: edge-to-edge carousel */
+@media (max-width: 768px) {
+  #image-carousel, .image-carousel, .main-image-wrap { width: 100vw !important; margin-left: calc(50% - 50vw) !important; margin-right: calc(50% - 50vw) !important; }
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+  <a class="back-link" href="shop.html">← Back to Shop</a>
+
+  <div class="main-image-wrap"><img id="main-img" src="images/blue 1.jpg" alt="Black Crewneck"></div>
+
+  <div class="title">Baby Blue Crewneck</div>
+  <div class="price">LE 749.00</div>
+
+  <div class="label-small">Size: <span id="selected-size-label">—</span></div>
+  <div class="size-row" id="size-row">
+    <div class="size-button" data-size="S">S</div>
+    <div class="size-button" data-size="M">M</div>
+    <div class="size-button" data-size="L">L</div>
+  </div>
+
+  <div class="label-small">Quantity</div>
+  <div class="controls">
+    <div class="qty-box">
+      <div class="qty-btn" id="qty-minus">-</div>
+      <div class="qty-display" id="qty-display">1</div>
+      <div class="qty-btn" id="qty-plus">+</div>
+    </div>
+  </div>
+
+  <div class="add-row">
+    <button class="add-to-cart" id="add-to-cart">ADD TO CART</button>
+  </div>
+
+  <div class="gallery" id="gallery">
+    <img src="images/blue 1.jpg" data-src="images/blue 1.jpg" class="selected">
+    <img src="images/blue 2.jpg" data-src="images/blue 2.jpg" class="">
+    <img src="images/blue 3.jpg" data-src="images/blue 3.jpg" class="">
+  </div>
+
+  <div class="label-small" style="margin-top:8px">Colors</div>
+  <div class="color-row" id="color-row">
+    <div class="color-swatch active" data-color="#89CFF0" style="background:#89CFF0"></div>
+  </div>
+  </div>
+
+  <div class="label-small" style="margin-top:12px">You may also like</div>
+  <div class="related-grid">
+    <a class="related-card" href="p1.html">
+      <div class="related-thumb"><img src="images/black 1.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:6px"></div>
+      <div style="font-weight:700">Black Crewneck</div>
+      <div class="small-muted">LE 749.00</div>
+    </a>
+    <a class="related-card" href="p3.html">
+      <div class="related-thumb"><img src="images/fbr 1.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:6px"></div>
+      <div style="font-weight:700">FBR Full Suit</div>
+      <div class="small-muted">LE 1599.00</div>
+    </a>
+  </div>
+
+    </a>
+    </a>
+  </div>
+</div>
+
+<!-- Include the cart sidebar and modal HTML from your shop.html so the JS finds the elements it expects -->
+<!-- product modal (copied from your shop.html) -->
+<div id="product-modal" class="fixed inset-0 bg-black bg-opacity-75 z-[100] hidden items-center justify-center p-4 transition-opacity duration-300 overflow-y-auto">
+  <div class="bg-black rounded-lg max-w-4xl w-full flex flex-col md:flex-row shadow-2xl transform scale-100 transition-transform duration-300 border border-gray-800">
+    <button id="close-modal-button" class="absolute top-3 right-3 text-white hover:text-gray-400 z-10 p-2 rounded-full bg-black/50">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+    <div class="md:w-5/12 relative overflow-hidden rounded-t-lg md:rounded-l-lg md:rounded-t-none bg-black flex items-center justify-center p-4">
+      <div id="image-carousel" class="w-full max-w-md mx-auto aspect-3/4 relative overflow-hidden rounded-lg">
+        <div id="carousel-slides" class="flex transition-transform duration-300 ease-in-out h-full">
+          <div class="w-full flex-shrink-0 h-full bg-gray-900 flex items-center justify-center">
+            <img id="modal-product-image-1" src="images/blue 1.jpg" alt="Product View 1" class="w-full h-full object-contain">
+          </div>
+          <div class="w-full flex-shrink-0 h-full bg-gray-900 flex items-center justify-center">
+            <img id="modal-product-image-2" src="images/blue 2.jpg" alt="Product View 2" class="w-full h-full object-contain">
+          </div>
+          <div class="w-full flex-shrink-0 h-full bg-gray-900 flex items-center justify-center">
+            <img id="modal-product-image-3" src="images/blue 3.jpg" alt="Product View 3" class="w-full h-full object-contain">
+          </div>
+        </div>
+        <button id="carousel-prev" class="absolute left-0 top-1/2 transform -translate-y-1/2 p-2 bg-black/50 text-white rounded-r-lg hover:bg-black/75">&#10094;</button>
+        <button id="carousel-next" class="absolute right-0 top-1/2 transform -translate-y-1/2 p-2 bg-black/50 text-white rounded-l-lg hover:bg-black/75">&#10095;</button>
+      </div>
+    </div>
+
+    <div class="md:w-7/12 p-6 space-y-4">
+      <h2 id="modal-product-title" class="text-3xl font-extrabold text-white">Product Title</h2>
+      <p id="modal-product-price" class="text-2xl font-bold text-gray-300">LE 0.00</p>
+      <hr class="border-gray-700">
+
+      <div>
+        <h3 class="text-lg font-semibold text-gray-400 mb-2">Size: <span id="selected-size-display" class="text-white">XL</span></h3>
+        <div id="modal-size-chart" class="flex space-x-2">
+          <button data-size="XL" class="size-option w-12 h-10 rounded-md border border-white bg-gray-700 flex items-center justify-center text-sm font-medium transition-colors cursor-pointer text-white">XL</button>
+          <button data-size="L" class="size-option w-12 h-10 rounded-md border border-gray-700 flex items-center justify-center text-sm font-medium hover:bg-gray-700 transition-colors cursor-pointer text-gray-400 hover:text-white">L</button>
+          <button data-size="M" class="size-option w-12 h-10 rounded-md border border-gray-700 flex items-center justify-center text-sm font-medium hover:bg-gray-700 transition-colors cursor-pointer text-gray-400 hover:text-white">M</button>
+          <button data-size="S" class="size-option w-12 h-10 rounded-md border border-gray-700 flex items-center justify-center text-sm font-medium hover:bg-gray-700 transition-colors cursor-pointer text-gray-400 hover:text-white">S</button>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-2 mt-4">
+        <button id="qty-minus" class="w-10 h-10 rounded-md bg-gray-800 text-white hover:bg-gray-700 transition-colors">-</button>
+        <span id="qty-display" class="w-10 h-10 flex items-center justify-center text-white text-lg font-medium border border-gray-700 rounded-md">1</span>
+        <button id="qty-plus" class="w-10 h-10 rounded-md bg-gray-800 text-white hover:bg-gray-700 transition-colors">+</button>
+      </div>
+
+      <button id="add-to-cart-button" class="w-full bg-white text-black font-bold py-3 rounded-md hover:bg-gray-200 transition-colors text-lg uppercase mt-6">Add to Cart</button>
+
+      <p id="modal-message" class="text-green-400 text-sm text-center hidden mt-4"></p>
+
+      <hr class="border-gray-700">
+
+      <div class="border-b border-gray-700">
+        <button class="accordion-button flex justify-between items-center w-full py-3 text-lg font-semibold text-white" aria-expanded="true" aria-controls="description-content">
+          Description
+          <svg class="w-5 h-5 text-gray-400 accordion-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+        </button>
+        <div id="description-content" class="accordion-content px-1 pb-3 text-gray-300 active">
+          <p>High-quality, durable streetwear designed and produced in Egypt. Perfect fit and premium cotton blends for ultimate comfort and style. Wear the future.</p>
+        </div>
+      </div>
+
+      <div>
+        <button class="accordion-button flex justify-between items-center w-full py-3 text-lg font-semibold text-white" aria-expanded="true" aria-controls="size-chart-content">
+          Size Chart
+          <svg class="w-5 h-5 text-gray-400 accordion-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+        </button>
+        <div id="size-chart-content" class="accordion-content px-1 pb-3 text-gray-300 active">
+          <p>Detailed size information:</p>
+          <ul class="list-disc list-inside mt-2">
+            <li><strong>S:</strong> Chest 34-36", Waist 28-30"</li>
+            <li><strong>M:</strong> Chest 38-40", Waist 32-34"</li>
+            <li><strong>L:</strong> Chest 42-44", Waist 36-38"</li>
+            <li><strong>XL:</strong> Chest 46-48", Waist 40-42"</li>
+          </ul>
+          <p class="mt-2 text-sm text-gray-500">All measurements are approximate.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- cart sidebar (copied from your shop.html) -->
+<div id="cart-sidebar" class="fixed right-0 top-0 w-full sm:w-96 h-full bg-black border-l border-gray-800 z-[101] transform translate-x-full transition-transform duration-300 shadow-2xl overflow-y-auto">
+  <div class="flex flex-col h-full">
+    <div class="p-5 border-b border-gray-800 flex justify-between items-center">
+      <a href="shop.html" id="continue-shopping" class="text-sm font-medium text-gray-400 hover:text-white transition-colors uppercase tracking-wider">&larr; Continue Shopping</a>
+      <button id="close-cart-button" class="text-white hover:text-gray-400 p-2 rounded-full">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div id="cart-empty-state" class="flex-grow flex flex-col items-center justify-center p-6 text-center">
+      <svg class="w-16 h-16 text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+      <p class="text-xl font-semibold text-gray-400">Your cart is empty</p>
+    </div>
+
+    <div id="cart-populated-state" class="flex-grow overflow-y-auto p-5 space-y-4 hidden">
+      <div id="cart-items-container"></div>
+    </div>
+
+    <div id="cart-footer" class="p-5 border-t border-gray-800 space-y-3 hidden">
+      <div class="flex justify-between font-bold text-xl">
+        <span class="uppercase">Subtotal</span>
+        <span id="cart-total-price">LE 0.00</span>
+      </div>
+      <button id="checkout-button" class="w-full bg-white text-black font-bold py-3 rounded-md hover:bg-gray-200 transition-colors text-lg uppercase tracking-wider">Checkout</button>
+      <p class="text-xs text-gray-500 text-center">Shipping and taxes calculated at checkout.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Script: merged cart/modal logic from your shop.html -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // --- Mobile Menu Logic ---
+    const menuButton = document.getElementById('mobile-menu-button');
+    const closeButton = document.getElementById('mobile-menu-close-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    if (menuButton && mobileMenu) {
+        menuButton.addEventListener('click', () => {
+            mobileMenu.classList.remove('hidden');
+        });
+    }
+    if (closeButton && mobileMenu) {
+        closeButton.addEventListener('click', () => {
+            mobileMenu.classList.add('hidden');
+        });
+    }
+
+    // --- GLOBAL CART STATE & LOGIC ---
+    // Cart items are stored as { id, title, price, size, quantity, image }
+    let cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
+    const cartSidebar = document.getElementById('cart-sidebar');
+    const cartItemsContainer = document.getElementById('cart-items-container');
+    const cartTotalDisplay = document.getElementById('cart-total-price');
+    const cartBadge = document.getElementById('cart-count-badge');
+    const emptyState = document.getElementById('cart-empty-state');
+    const populatedState = document.getElementById('cart-populated-state');
+    const cartFooter = document.getElementById('cart-footer');
+
+    // Helper function to format price
+    function formatPrice(price) {
+        return `LE ${price.toFixed(2)}`;
+    }
+
+    // Render the cart sidebar content
+    function renderCart() {
+        // 1. Update Badge
+        const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+        if (cartBadge) {
+            cartBadge.textContent = totalItems;
+            cartBadge.classList.toggle('opacity-0', totalItems === 0);
+        }
+
+        // 2. Clear current items display
+        if (cartItemsContainer) cartItemsContainer.innerHTML = '';
+        if (cartItems.length === 0) {
+            if (emptyState) emptyState.classList.remove('hidden');
+            if (populatedState) populatedState.classList.add('hidden');
+            if (cartFooter) cartFooter.classList.add('hidden');
+            return;
+        }
+
+        // 3. Show populated state
+        if (emptyState) emptyState.classList.add('hidden');
+        if (populatedState) populatedState.classList.remove('hidden');
+        if (cartFooter) cartFooter.classList.remove('hidden');
+
+        let totalPrice = 0;
+
+        cartItems.forEach((item, index) => {
+            // Calculate item total
+            const itemPrice = parseFloat(item.price.replace('LE ', '').replace(',', '')) || 0;
+            const itemTotal = itemPrice * item.quantity;
+            totalPrice += itemTotal;
+
+            // Create HTML for the cart item
+            const itemElement = document.createElement('div');
+            itemElement.className = 'flex space-x-4 border-b border-gray-800 pb-4';
+            itemElement.innerHTML = `
+                <div class="flex-shrink-0 w-20 h-20 rounded-md overflow-hidden bg-gray-900">
+                    <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover">
+                </div>
+
+                <div class="flex-grow">
+                    <h3 class="text-sm font-medium text-white truncate">${item.title}</h3>
+                    <p class="text-xs text-gray-400">Size: ${item.size}</p>
+
+                    <p class="text-sm font-semibold text-gray-300 mt-1">${formatPrice(itemTotal)}</p>
+                    <div class="flex items-center space-x-2 mt-2">
+                        <button data-index="${index}" data-action="decrease" class="cart-qty-btn w-6 h-6 rounded-md bg-gray-800 text-white text-sm hover:bg-gray-700 transition-colors">-</button>
+                        <span class="text-sm w-4 text-center">${item.quantity}</span>
+                        <button data-index="${index}" data-action="increase" class="cart-qty-btn w-6 h-6 rounded-md bg-gray-800 text-white text-sm hover:bg-gray-700 transition-colors">+</button>
+                        <button data-index="${index}" data-action="remove" class="text-xs text-red-500 hover:text-red-400 ml-auto">Remove</button>
+                    </div>
+                </div>
+            `;
+            if (cartItemsContainer) cartItemsContainer.appendChild(itemElement);
+        });
+
+        // 4. Update total price
+        if (cartTotalDisplay) cartTotalDisplay.textContent = formatPrice(totalPrice);
+
+        // 5. Re-attach event listeners for quantity buttons
+        document.querySelectorAll('.cart-qty-btn, [data-action="remove"]').forEach(button => {
+            button.addEventListener('click', handleCartItemAction);
+        });
+    }
+
+    // Function to handle cart actions (increase/decrease/remove)
+    function handleCartItemAction(event) {
+        const button = event.target.closest('button');
+        const index = parseInt(button.getAttribute('data-index'));
+        const action = button.getAttribute('data-action');
+
+        if (index >= 0 && index < cartItems.length) {
+            const item = cartItems[index];
+            if (action === 'increase') {
+                item.quantity++;
+            } else if (action === 'decrease') {
+                if (item.quantity > 1) {
+                    item.quantity--;
+                } else {
+                    // If quantity is 1, hitting decrease means removing it
+                    cartItems.splice(index, 1);
+                }
+            } else if (action === 'remove') {
+                cartItems.splice(index, 1);
+            }
+            renderCart(); localStorage.setItem("cartItems", JSON.stringify(cartItems));
+        }
+    }
+
+    // Function to add item to cart
+    function addItemToCart(title, price, size, quantity, image) {
+        const existingItemIndex = cartItems.findIndex(item =>
+            item.title === title && item.size === size
+        );
+        if (existingItemIndex > -1) {
+            // Item already exists, just increase quantity
+            cartItems[existingItemIndex].quantity += quantity;
+        } else {
+            // Add new item
+            cartItems.push({
+                id: Date.now(),
+                title,
+                price,
+                size,
+                quantity,
+                image
+            });
+        }
+        renderCart(); localStorage.setItem("cartItems", JSON.stringify(cartItems));
+    }
+
+    // --- Cart Sidebar Open/Close Logic ---
+    const openCartButton = document.getElementById('open-cart-button');
+    const closeCartButton = document.getElementById('close-cart-button');
+    const cartWrapper = document.getElementById('cart-sidebar');
+    const checkoutButton = document.getElementById('checkout-button');
+    function openCart() {
+        if (cartWrapper) {
+            cartWrapper.classList.remove('translate-x-full');
+            cartWrapper.classList.add('translate-x-0');
+        }
+        renderCart(); localStorage.setItem("cartItems", JSON.stringify(cartItems));
+    }
+
+    function closeCart() {
+        if (cartWrapper) {
+            cartWrapper.classList.remove('translate-x-0');
+            cartWrapper.classList.add('translate-x-full');
+        }
+    }
+
+    if (openCartButton) openCartButton.addEventListener('click', openCart);
+    if (closeCartButton) closeCartButton.addEventListener('click', closeCart);
+
+    // --- UPDATED CHECKOUT BUTTON HANDLER ---
+    if (checkoutButton) {
+        checkoutButton.addEventListener('click', () => {
+            closeCart();
+            window.location.href = 'checkout.html';
+        });
+    }
+
+    // --- PRODUCT MODAL LOGIC ---
+    const modal = document.getElementById('product-modal');
+    const modalCloseButton = document.getElementById('close-modal-button');
+    const modalTitle = document.getElementById('modal-product-title');
+    const modalPrice = document.getElementById('modal-product-price');
+    const sizeOptions = document.querySelectorAll('.size-option');
+    const selectedSizeDisplay = document.getElementById('selected-size-display');
+    const qtyMinusButton = document.getElementById('qty-minus');
+    const qtyPlusButton = document.getElementById('qty-plus');
+    const qtyDisplay = document.getElementById('qty-display');
+    const addToCartButton = document.getElementById('add-to-cart-button');
+    const modalMessage = document.getElementById('modal-message');
+    let currentProductImage = '';
+    let currentProductImageAlt = '';
+
+    let selectedSize = 'XL';
+    let quantity = 1;
+
+    // Carousel Logic 
+    const slidesContainer = document.getElementById('carousel-slides');
+    const prevButton = document.getElementById('carousel-prev');
+    const nextButton = document.getElementById('carousel-next');
+    const totalSlides = 3;
+    let currentSlide = 0;
+    function updateCarousel() {
+        const offset = -currentSlide * 100;
+        slidesContainer.style.transform = `translateX(${offset}%)`;
+    }
+    if (prevButton) prevButton.addEventListener('click', () => { currentSlide = (currentSlide - 1 + totalSlides) % totalSlides; updateCarousel(); });
+    if (nextButton) nextButton.addEventListener('click', () => { currentSlide = (currentSlide + 1) % totalSlides; updateCarousel(); });
+
+    const carouselElement = document.getElementById('image-carousel');
+    let touchstartX = 0;
+    let touchendX = 0;
+
+    function handleGesture() {
+        const threshold = 50;
+        if (touchendX < touchstartX - threshold) { currentSlide = (currentSlide + 1) % totalSlides; updateCarousel(); }
+        if (touchendX > touchstartX + threshold) { currentSlide = (currentSlide - 1 + totalSlides) % totalSlides; updateCarousel(); }
+    }
+    if(carouselElement){
+        carouselElement.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; });
+        carouselElement.addEventListener('touchend', e => { touchendX = e.changedTouches[0].screenX; handleGesture(); });
+    }
+    // End Carousel Logic
+
+    // Accordion Logic 
+    document.querySelectorAll('.accordion-button').forEach(button => {
+        button.setAttribute('aria-expanded', 'false');
+        document.getElementById(button.getAttribute('aria-controls')).classList.remove('active');
+        button.addEventListener('click', () => {
+            const content = document.getElementById(button.getAttribute('aria-controls'));
+            const isExpanded = button.getAttribute('aria-expanded') === 'true';
+            button.setAttribute('aria-expanded', !isExpanded);
+            content.classList.toggle('active', !isExpanded);
+        });
+    });
+
+    // Helper to close modal
+    function closeModal() {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        modalMessage.classList.add('hidden');
+    }
+
+    // Function to open modal and populate data
+    function openProductModal(title, price, imageMain, imageAlt) {
+        document.getElementById('modal-product-image-1').src = imageMain;
+        document.getElementById('modal-product-image-2').src = imageAlt;
+        currentProductImage = imageMain;
+        currentProductImageAlt = imageAlt;
+        modalTitle.textContent = title;
+        modalPrice.textContent = price;
+        modalMessage.classList.add('hidden');
+        quantity = 1;
+        qtyDisplay.textContent = quantity;
+        currentSlide = 0;
+        updateCarousel();
+        sizeOptions.forEach(btn => {
+            btn.classList.remove('bg-gray-700', 'border-white', 'text-white');
+            btn.classList.add('border-gray-700', 'text-gray-400', 'hover:bg-gray-700', 'hover:text-white');
+            if (btn.getAttribute('data-size') === 'XL') {
+                btn.classList.add('bg-gray-700', 'border-white', 'text-white');
+                btn.classList.remove('border-gray-700', 'text-gray-400', 'hover:bg-gray-700', 'hover:text-white');
+                selectedSize = 'XL';
+                selectedSizeDisplay.textContent = 'XL';
+            }
+        });
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    // Event Listeners for closing the modal
+    if (modalCloseButton) modalCloseButton.addEventListener('click', closeModal);
+    if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+    // Event Listeners for sizes
+    sizeOptions.forEach(btn => {
+        btn.addEventListener('click', () => {
+            sizeOptions.forEach(b => {
+                b.classList.remove('bg-gray-700', 'border-white', 'text-white');
+                b.classList.add('border-gray-700', 'text-gray-400', 'hover:bg-gray-700', 'hover:text-white');
+            });
+            btn.classList.remove('border-gray-700', 'text-gray-400', 'hover:bg-gray-700', 'hover:text-white');
+            btn.classList.add('bg-gray-700', 'border-white', 'text-white');
+            selectedSize = btn.getAttribute('data-size');
+            selectedSizeDisplay.textContent = selectedSize;
+            modalMessage.classList.add('hidden');
+        });
+    });
+
+    // Quantity selector event listeners
+    if (qtyMinusButton) qtyMinusButton.addEventListener('click', () => {
+        if (quantity > 1) { quantity--; qtyDisplay.textContent = quantity; modalMessage.classList.add('hidden'); }
+    });
+    if (qtyPlusButton) qtyPlusButton.addEventListener('click', () => {
+        quantity++; qtyDisplay.textContent = quantity; modalMessage.classList.add('hidden');
+    });
+
+    // ADD TO CART BUTTON HANDLER
+    if (addToCartButton) addToCartButton.addEventListener('click', () => {
+        if (!selectedSize) {
+            modalMessage.textContent = 'Please select a size.';
+            modalMessage.classList.remove('text-green-400', 'hidden');
+            modalMessage.classList.add('text-red-400');
+            return;
+        }
+        addItemToCart(modalTitle.textContent, modalPrice.textContent, selectedSize, quantity, currentProductImage);
+        modalMessage.textContent = `${quantity}x ${modalTitle.textContent} added to cart! (Size: ${selectedSize})`;
+        modalMessage.classList.remove('text-red-400', 'hidden');
+        modalMessage.classList.add('text-green-400');
+        setTimeout(() => { closeModal(); openCart(); }, 500);
+    });
+
+    // Product card click handlers - adapt to single product file by enabling opening modal when main image or title clicked
+    document.querySelectorAll('.product-card-link').forEach(link => {
+        link.addEventListener('click', function(event) {
+            event.preventDefault();
+            const card = this.closest('.product-item');
+            const title = card ? card.getAttribute('data-title') : 'Black Crewneck';
+            const price = card ? card.getAttribute('data-price') : 'LE 749.00';
+            const imageMain = card ? card.getAttribute('data-image-main') : document.getElementById('main-img').src;
+            const imageAlt = card ? card.getAttribute('data-image-alt') : document.getElementById('main-img').src;
+            openProductModal(title, price, imageMain, imageAlt);
+        });
+    });
+
+    // Hook product page controls to use the same cart functions
+    // gallery -> main image
+    document.querySelectorAll('#gallery img').forEach(function(img){
+        img.addEventListener('click', function(){
+            document.getElementById('main-img').src = this.dataset.src || this.src;
+            document.querySelectorAll('#gallery img').forEach(i=>i.classList.remove('selected'));
+            this.classList.add('selected');
+        });
+    });
+
+    // color swatches
+    document.querySelectorAll('#color-row .color-swatch').forEach(function(s){
+        s.addEventListener('click', function(){
+            document.querySelectorAll('#color-row .color-swatch').forEach(x=>x.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+
+    // sizes on page
+    document.querySelectorAll('#size-row .size-button').forEach(function(b){
+        b.addEventListener('click', function(){
+            document.querySelectorAll('#size-row .size-button').forEach(x=>x.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById('selected-size-label').textContent = this.dataset.size;
+        });
+    });
+
+    // qty on page
+    let pageQty = 1;
+    document.getElementById('qty-minus').addEventListener('click', function(){ if(pageQty>1) pageQty--; document.getElementById('qty-display').textContent = pageQty; });
+    document.getElementById('qty-plus').addEventListener('click', function(){ pageQty++; document.getElementById('qty-display').textContent = pageQty; });
+
+    // page add to cart button should use same addItemToCart and openCart
+    document.getElementById('add-to-cart').addEventListener('click', function(){
+        const size = document.querySelector('.size-button.active')?.dataset.size;
+        if(!size){ alert('Please select a size'); return; }
+        const color = document.querySelector('.color-swatch.active')?.dataset.color || '';
+        const qty = parseInt(document.getElementById('qty-display').textContent) || 1;
+        addItemToCart(document.querySelector('.title').textContent, document.querySelector('.price').textContent, size, qty, document.getElementById('main-img').src);
+        openCart();
+    });
+
+    // Initial cart render on load
+    renderCart(); localStorage.setItem("cartItems", JSON.stringify(cartItems));
+});
+</script>
+
+</body>
+</html>

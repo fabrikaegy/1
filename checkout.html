@@ -1,0 +1,206 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Checkout - FABRIKA</title>
+
+<style>
+body {
+    background:#ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin:0;
+    padding:0;
+    color:#000;
+}
+
+.container {
+    max-width:480px;
+    margin:0 auto;
+    padding:20px;
+}
+
+.section-title {
+    font-size:28px;
+    font-weight:700;
+    margin-bottom:10px;
+}
+
+.subtext {
+    color:#666;
+    font-size:14px;
+    margin-bottom:20px;
+}
+
+.box {
+    border:1px solid #d9d9d9;
+    border-radius:12px;
+    padding:16px;
+    background:#f9f9f9;
+    margin-bottom:20px;
+}
+
+.radio-row {
+    display:flex;
+    align-items:center;
+    padding:12px;
+    background:white;
+    border-radius:12px;
+    border:2px solid #d9d9d9;
+    margin-bottom:10px;
+}
+
+.radio-row input {
+    width:20px;
+    height:20px;
+    margin-right:12px;
+}
+
+.label {
+    font-size:16px;
+}
+
+.input { height:48px; padding:12px; border-radius:8px; border:1px solid #d6d6d6; font-size:15px; width:100%; background:#ffffff; box-sizing:border-box; margin-bottom:14px; }
+
+.row-2 {
+    display:flex;
+    gap:12px;
+}
+
+.order-box {
+    border-radius:12px;
+    background:white;
+    border:1px solid #d9d9d9;
+    padding:16px;
+}
+
+.order-item {
+    display:flex;
+    align-items:center;
+    padding:10px 0;
+    border-bottom:1px solid #eaeaea;
+}
+
+.order-item img {
+    width:70px;
+    height:70px;
+    border-radius:10px;
+    margin-right:15px;
+    object-fit:cover;
+}
+
+.summary-line {
+    display:flex;
+    justify-content:space-between;
+    margin:8px 0;
+    font-size:16px;
+}
+
+.total-line {
+    display:flex;
+    justify-content:space-between;
+    font-size:22px;
+    margin-top:15px;
+    font-weight:700;
+}
+
+.button { width:100%; height:48px; padding:12px; background:#007bff; color:white; border-radius:8px; font-size:17px; font-weight:600; text-align:center; box-sizing:border-box; margin-top:20px; }
+</style>
+</head>
+
+<body>
+<div class="container" style="max-width:430px; padding:16px;">
+
+    <h1 class="section-title">Payment</h1>
+    <p class="subtext">All transactions are secure and encrypted.</p>
+
+    <div class="box">
+        <div class="radio-row">
+            <input type="radio" checked>
+            <span class="label">Cash on Delivery (COD)</span>
+        </div>
+    </div>
+
+    
+
+    <h2 class="section-title" style="font-size:22px; margin-top:25px;">Delivery</h2>
+
+    <select class="input" style="height:48px; font-size:15px;">
+        <option>Egypt</option>
+    </select>
+
+    <input class="input" placeholder="First name (optional)">
+    <input class="input" placeholder="Last name">
+    <input class="input" placeholder="Address">
+
+    <input class="input" placeholder="Apartment, suite, etc. (optional)">
+    <input class="input" placeholder="City">
+
+    <select class="input" style="height:48px; font-size:15px;">
+        <option>Cairo</option>
+    </select>
+
+    <input class="input" placeholder="Postal code (optional)">
+    <input class="input" placeholder="Phone">
+
+    <div class="order-box">
+        <h2 class="section-title" style="font-size:22px;">Order summary</h2>
+
+        <div id="order-items"></div>
+
+        <div class="summary-line">
+            <span>Subtotal</span>
+            <span id="subtotal-price">EGP 0.00</span>
+        </div>
+
+        <div class="summary-line">
+            <span>Shipping</span>
+            <span>EGP 80.00</span>
+        </div>
+
+        <div class="total-line">
+            <span>Total</span>
+            <span id="total-price">EGP 0.00</span>
+        </div>
+    </div>
+
+    <div class="button">Complete order</div>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
+    const orderContainer = document.getElementById("order-items");
+    const subtotalDisplay = document.getElementById("subtotal-price");
+    const totalDisplay = document.getElementById("total-price");
+
+    let subtotal = 0;
+
+    cartItems.forEach(item => {
+        const price = parseFloat(item.price.replace("LE ", ""));
+        const lineTotal = price * item.quantity;
+        subtotal += lineTotal;
+
+        const div = document.createElement("div");
+        div.className = "order-item";
+
+        div.innerHTML = `
+            <img src="${item.image}">
+            <div>
+                <div style="font-weight:600">${item.title}</div>
+                <div style="color:#666; font-size:14px;">${item.size}</div>
+            </div>
+            <div style="margin-left:auto; font-weight:600;">EGP ${lineTotal.toFixed(2)}</div>
+        `;
+        orderContainer.appendChild(div);
+    });
+
+    subtotalDisplay.textContent = "EGP " + subtotal.toFixed(2);
+    totalDisplay.textContent = "EGP " + (subtotal + 80).toFixed(2);
+});
+</script>
+
+</body>
+</html>
