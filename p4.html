@@ -90,6 +90,51 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
 }
 </style>
 
+
+<!-- INSERTED: Free horizontal scroll main gallery -->
+<style>
+/* Target common gallery containers */
+#carousel-slides, #image-carousel, .image-carousel, .main-image-wrap {
+  display: block;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  white-space: nowrap;
+  padding-bottom: 8px;
+}
+
+/* Make slide children inline blocks and full width so they scroll horizontally */
+#carousel-slides > div, #image-carousel > div, .image-carousel > div, .main-image-wrap > img {
+  display: inline-block !important;
+  vertical-align: top;
+  width: 100% !important;
+  height: 75vh !important;
+  max-height: 75vh !important;
+}
+
+/* Ensure images fill area */
+#carousel-slides img, #image-carousel img, .image-carousel img, .main-image-wrap img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
+/* Hide arrow controls if present */
+#carousel-prev, #carousel-next, .carousel-prev, .carousel-next, .carousel-button { display: none !important; }
+
+/* Keep small thumbnails unaffected (higher specificity) */
+.thumb-small, .gallery-thumb-small, .product-thumbs img { width: auto !important; height: auto !important; }
+
+/* related thumbs square tweak (if present) */
+.related-thumb, .related-thumb img { width: 160px !important; height: 160px !important; aspect-ratio:1/1 !important; object-fit:cover !important; }
+
+/* Hide scrollbar visuals but keep scrolling */
+#carousel-slides::-webkit-scrollbar, #image-carousel::-webkit-scrollbar { height: 8px; }
+#carousel-slides::-webkit-scrollbar-thumb, #image-carousel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 999px; }
+</style>
+
 </head>
 <body>
 
@@ -632,6 +677,67 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial cart render on load
     renderCart(); localStorage.setItem("cartItems", JSON.stringify(cartItems));
 });
+</script>
+
+
+<!-- INSERTED: enable mouse-drag & touch scrolling on main gallery -->
+<script>
+(function(){
+  // Candidate selectors for main gallery container
+  const selectors = ['#carousel-slides', '#image-carousel', '.image-carousel', '.main-image-wrap'];
+  let scroller = null;
+  for (let s of selectors) {
+    const el = document.querySelector(s);
+    if (el) { scroller = el; break; }
+  }
+  if (!scroller) return;
+
+  // If slides container has child divs that are full-width, ensure inline-block
+  scroller.style.cursor = 'grab';
+
+  let isDown = false;
+  let startX;
+  let scrollLeft;
+
+  scroller.addEventListener('mousedown', (e) => {
+    isDown = true;
+    scroller.classList.add('dragging');
+    startX = e.pageX - scroller.offsetLeft;
+    scrollLeft = scroller.scrollLeft;
+    e.preventDefault();
+  });
+
+  scroller.addEventListener('mouseleave', () => {
+    isDown = false;
+    scroller.classList.remove('dragging');
+  });
+
+  scroller.addEventListener('mouseup', () => {
+    isDown = false;
+    scroller.classList.remove('dragging');
+  });
+
+  scroller.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - scroller.offsetLeft;
+    const walk = (x - startX) * 1.2; //scroll-fast
+    scroller.scrollLeft = scrollLeft - walk;
+  });
+
+  // Improve touch: detect quick flicks and allow momentum naturally (browser handles it)
+  scroller.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+    scrollLeft = scroller.scrollLeft;
+  }, {passive:true});
+
+  scroller.addEventListener('touchmove', (e) => {
+    const x = e.touches[0].clientX;
+    const walk = (x - startX) * 1.2;
+    scroller.scrollLeft = scrollLeft - walk;
+  }, {passive:true});
+
+})();
 </script>
 
 </body>
