@@ -90,6 +90,87 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
 }
 </style>
 
+
+<!-- IMPORTED_ZARA_SWIPE: styles for full-width swipe gallery and square related thumbs -->
+<style>
+/* Main carousel area: tall like Zara (75vh) and edge-to-edge on mobile */
+#image-carousel, .image-carousel, .main-image-wrap { height: 75vh !important; max-height:75vh !important; }
+#image-carousel, .image-carousel, .main-image-wrap { width: 100% !important; }
+
+/* Images fill the carousel area without distortion */
+#image-carousel img, #carousel-slides img, .main-image-wrap img, .product-main-img { width: 100% !important; height: 100% !important; object-fit: cover !important; display:block; }
+
+/* Hide arrow buttons (swipe-only) */
+#carousel-prev, #carousel-next, .carousel-prev, .carousel-next { display: none !important; }
+
+/* "You may also like" — make thumbs perfect squares 160x160 */
+.related-thumb, .related-thumb img, .you-may-like .thumb, .you-may-like img, .related-grid img, .related-card img {
+  width: 160px !important;
+  height: 160px !important;
+  aspect-ratio: 1 / 1 !important;
+  object-fit: cover !important;
+  display: inline-block !important;
+}
+
+/* Ensure small gallery thumbnails (under Add to Cart) are NOT affected */
+.thumb-small, .gallery-thumb-small { width: auto !important; height: auto !important; }
+
+/* Accordion: ensure transition works and .active opens */
+.accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.28s ease-out; }
+.accordion-content.active { max-height: 1200px; transition: max-height 0.35s ease-in; }
+
+/* Mobile: edge-to-edge carousel */
+@media (max-width: 768px) {
+  #image-carousel, .image-carousel, .main-image-wrap { width: 100vw !important; margin-left: calc(50% - 50vw) !important; margin-right: calc(50% - 50vw) !important; }
+}
+</style>
+<!-- end IMPORTED_ZARA_SWIPE -->
+
+
+<!-- INSERTED: Free horizontal scroll main gallery -->
+<style>
+/* Target common gallery containers */
+#carousel-slides, #image-carousel, .image-carousel, .main-image-wrap {
+  display: block;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  white-space: nowrap;
+  padding-bottom: 8px;
+}
+
+/* Make slide children inline blocks and full width so they scroll horizontally */
+#carousel-slides > div, #image-carousel > div, .image-carousel > div, .main-image-wrap > img {
+  display: inline-block !important;
+  vertical-align: top;
+  width: 100% !important;
+  height: 75vh !important;
+  max-height: 75vh !important;
+}
+
+/* Ensure images fill area */
+#carousel-slides img, #image-carousel img, .image-carousel img, .main-image-wrap img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
+/* Hide arrow controls if present */
+#carousel-prev, #carousel-next, .carousel-prev, .carousel-next, .carousel-button { display: none !important; }
+
+/* Keep small thumbnails unaffected (higher specificity) */
+.thumb-small, .gallery-thumb-small, .product-thumbs img { width: auto !important; height: auto !important; }
+
+/* related thumbs square tweak (if present) */
+.related-thumb, .related-thumb img { width: 160px !important; height: 160px !important; aspect-ratio:1/1 !important; object-fit:cover !important; }
+
+/* Hide scrollbar visuals but keep scrolling */
+#carousel-slides::-webkit-scrollbar, #image-carousel::-webkit-scrollbar { height: 8px; }
+#carousel-slides::-webkit-scrollbar-thumb, #image-carousel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 999px; }
+</style>
+
 </head>
 <body>
 
@@ -131,11 +212,6 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
   <div class="color-row" id="color-row">
     <div class="color-swatch active" data-color="#000000" style="background:#000000"></div>
   </div>
-
-  <div class="accordion">
-  
-  </div>
-
   <div class="label-small" style="margin-top:12px">You may also like</div>
   <div class="related-grid">
     <a class="related-card" href="p2.html">
@@ -630,6 +706,150 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial cart render on load
     renderCart(); localStorage.setItem("cartItems", JSON.stringify(cartItems));
 });
+</script>
+
+<script>
+// IMPROVED ZARA-STYLE LOOPING SWIPE FOR MAIN PRODUCT IMAGE
+(function () {
+    const mainImg = document.getElementById("main-img");
+    if (!mainImg) return;
+
+    const galleryThumbs = document.querySelectorAll(".gallery img[data-src]");
+    let images = Array.from(galleryThumbs).map(img => img.getAttribute("data-src"));
+
+    if (images.length === 0) images = [mainImg.src];
+
+    let index = 0;
+    let startX = 0, endX = 0;
+
+    function showImage(i) {
+        index = (i + images.length) % images.length; // LOOP ENABLED
+        mainImg.src = images[index];
+    }
+
+    mainImg.addEventListener("touchstart", e => {
+        startX = e.changedTouches[0].clientX;
+    });
+
+    mainImg.addEventListener("touchend", e => {
+        endX = e.changedTouches[0].clientX;
+        const diff = endX - startX;
+
+        if (Math.abs(diff) > 50) {
+            if (diff < 0) showImage(index + 1);   // swipe left -> next
+            else showImage(index - 1);           // swipe right -> previous
+        }
+    });
+})();
+</script>
+<!-- IMPORTED_ZARA_SWIPE: main image swipe script -->
+<script>
+(function () {
+    const mainImg = document.getElementById("main-img");
+    if (!mainImg) return;
+    const galleryThumbs = document.querySelectorAll(".gallery img[data-src]");
+    let images = Array.from(galleryThumbs).map(img => img.getAttribute("data-src"));
+    if (images.length === 0) images = [mainImg.src];
+    let index = images.indexOf(mainImg.src);
+    if(index === -1) index = 0;
+    let startX = 0, endX = 0;
+    function showImage(i) {
+        index = (i + images.length) % images.length;
+        mainImg.src = images[index];
+        // update gallery selected
+        document.querySelectorAll('.gallery img').forEach((g, idx) => {
+            g.classList.toggle('selected', idx === index);
+        });
+    }
+    mainImg.addEventListener("touchstart", e => { startX = e.changedTouches[0].clientX; });
+    mainImg.addEventListener("touchend", e => {
+        endX = e.changedTouches[0].clientX;
+        const diff = endX - startX;
+        if (Math.abs(diff) > 50) {
+            if (diff < 0) showImage(index + 1);
+            else showImage(index - 1);
+        }
+    });
+    // Also support mouse drag for desktop
+    let isDown = false, downX = 0;
+    mainImg.addEventListener('mousedown', e => { isDown = true; downX = e.clientX; });
+    window.addEventListener('mouseup', e => {
+        if (!isDown) return;
+        isDown = false;
+        const diff = e.clientX - downX;
+        if (Math.abs(diff) > 50) {
+            if (diff < 0) showImage(index + 1);
+            else showImage(index - 1);
+        }
+    });
+    // initialize gallery selected
+    document.querySelectorAll('.gallery img').forEach((g, idx) => {
+        g.classList.toggle('selected', idx === index);
+        g.addEventListener('click', function(){ mainImg.src = this.dataset.src || this.src; document.querySelectorAll('.gallery img').forEach(i=>i.classList.remove('selected')); this.classList.add('selected'); index = idx; });
+    });
+})();
+</script>
+<!-- end IMPORTED_ZARA_SWIPE -->
+
+
+<!-- INSERTED: enable mouse-drag & touch scrolling on main gallery -->
+<script>
+(function(){
+  // Candidate selectors for main gallery container
+  const selectors = ['#carousel-slides', '#image-carousel', '.image-carousel', '.main-image-wrap'];
+  let scroller = null;
+  for (let s of selectors) {
+    const el = document.querySelector(s);
+    if (el) { scroller = el; break; }
+  }
+  if (!scroller) return;
+
+  // If slides container has child divs that are full-width, ensure inline-block
+  scroller.style.cursor = 'grab';
+
+  let isDown = false;
+  let startX;
+  let scrollLeft;
+
+  scroller.addEventListener('mousedown', (e) => {
+    isDown = true;
+    scroller.classList.add('dragging');
+    startX = e.pageX - scroller.offsetLeft;
+    scrollLeft = scroller.scrollLeft;
+    e.preventDefault();
+  });
+
+  scroller.addEventListener('mouseleave', () => {
+    isDown = false;
+    scroller.classList.remove('dragging');
+  });
+
+  scroller.addEventListener('mouseup', () => {
+    isDown = false;
+    scroller.classList.remove('dragging');
+  });
+
+  scroller.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - scroller.offsetLeft;
+    const walk = (x - startX) * 1.2; //scroll-fast
+    scroller.scrollLeft = scrollLeft - walk;
+  });
+
+  // Improve touch: detect quick flicks and allow momentum naturally (browser handles it)
+  scroller.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+    scrollLeft = scroller.scrollLeft;
+  }, {passive:true});
+
+  scroller.addEventListener('touchmove', (e) => {
+    const x = e.touches[0].clientX;
+    const walk = (x - startX) * 1.2;
+    scroller.scrollLeft = scrollLeft - walk;
+  }, {passive:true});
+
+})();
 </script>
 
 </body>
