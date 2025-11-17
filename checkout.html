@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -105,8 +104,17 @@ body {
     font-weight:700;
 }
 
-.button { width:100%; height:48px; padding:12px; background:#007bff; color:white; border-radius:8px; font-size:17px; font-weight:600; text-align:center; box-sizing:border-box; margin-top:20px; }
+.button { width:100%; height:48px; padding:12px; background:#007bff; color:white; border-radius:8px; font-size:17px; font-weight:600; text-align:center; box-sizing:border-box; margin-top:20px; cursor:pointer; }
 </style>
+
+<!-- EMAILJS INIT -->
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script>
+   (function(){
+      emailjs.init("tTQoX_xpaaaEM63hP"); 
+   })();
+</script>
+
 </head>
 
 <body>
@@ -121,8 +129,6 @@ body {
             <span class="label">Cash on Delivery (COD)</span>
         </div>
     </div>
-
-    
 
     <h2 class="section-title" style="font-size:22px; margin-top:25px;">Delivery</h2>
 
@@ -200,6 +206,69 @@ document.addEventListener("DOMContentLoaded", () => {
     subtotalDisplay.textContent = "EGP " + subtotal.toFixed(2);
     totalDisplay.textContent = "EGP " + (subtotal + 80).toFixed(2);
 });
+</script>
+
+<!-- EMAILJS ORDER SEND WITH VALIDATION AND REDIRECT -->
+<script>
+document.querySelector(".button").addEventListener("click", sendOrder);
+
+function sendOrder() {
+    const first = document.querySelector("input[placeholder='First name (optional)']").value;
+    const last = document.querySelector("input[placeholder='Last name']").value.trim();
+    const address = document.querySelector("input[placeholder='Address']").value.trim();
+    const apt = document.querySelector("input[placeholder='Apartment, suite, etc. (optional)']").value;
+    const city = document.querySelector("input[placeholder='City']").value;
+    const postal = document.querySelector("input[placeholder='Postal code (optional)']").value;
+    const phone = document.querySelector("input[placeholder='Phone']").value.trim();
+
+    // Validation: required fields
+    if (last === "" || address === "" || phone === "") {
+        alert("Please enter Last Name, Address, and Phone number before confirming the order.");
+        return; // Stop sending
+    }
+
+    const fullName = `${first} ${last}`.trim();
+    const fullAddress = `${address}, ${apt}, ${city}, ${postal}`;
+
+    const items = JSON.parse(localStorage.getItem("cartItems") || "[]");
+
+    if (items.length === 0) {
+        alert("Your cart is empty.");
+        return;
+    }
+
+    let orderList = "";
+    items.forEach(i => {
+        orderList += `${i.title} - ${i.size} - Qty: ${i.quantity} - Price: ${i.price}\n`;
+    });
+
+    const subtotal = document.getElementById("subtotal-price").innerText;
+    const total = document.getElementById("total-price").innerText;
+
+    const templateParams = {
+        name: fullName,
+        address: fullAddress,
+        phone: phone,
+        order: orderList,
+        subtotal: subtotal,
+        total: total
+    };
+
+    emailjs.send("service_hhx9jiw", "template_srnf68y", templateParams, "tTQoX_xpaaaEM63hP")
+    .then(() => {
+        alert("Order sent successfully! We will contact you soon.");
+        localStorage.removeItem("cartItems");
+
+        // Redirect to home page after 1.5 seconds
+        setTimeout(() => {
+            window.location.href = "home.html"; // change if your home page file is different
+        }, 1500);
+    })
+    .catch((error) => {
+        alert("Failed to send. Please try again.");
+        console.error(error);
+    });
+}
 </script>
 
 </body>
